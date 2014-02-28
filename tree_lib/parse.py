@@ -32,3 +32,10 @@ def parse_csv_columns(csv_file, labeled=False):
     matrix = array(matrix)
     return labels, matrix 
 
+def save_model_predictions(predictions, filename):
+    """ Save model predictions to an output csv """ 
+    output = open(filename, 'w')
+    output.write('Id,Prediction\n')
+    for i in xrange(len(predictions)):
+        output.write('%d,%d\n' % (i+1, predictions[i]))
+    output.close()
