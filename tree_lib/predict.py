@@ -13,6 +13,7 @@ from sklearn import grid_search, preprocessing
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import TruncatedSVD
+from numpy import arange
 import pickle
 
 def load_pickle(model_pickle_file):
@@ -40,9 +41,11 @@ def build_models(training_file, output_file=None, scale_file=None):
     #    {'C': [1, 10, 100, 1000], 'kernel': ['poly']},
     #    {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
     #]
-    #clf = grid_search.GridSearchCV(SVC(), svm_params, cv=5)
-    clf = SVC(kernel='rbf', C=12) 
-    #clf = SVC(kernel='poly', C=100, class_weight='auto')
+    C_range = 10. ** arange(-2, 9)
+    gamma_range = 10. ** arange(-5, 4)
+    svm_params = dict(gamma=gamma_range, C=C_range)
+    clf = grid_search.GridSearchCV(SVC(), svm_params, cv=5)
+    #clf = SVC(kernel='rbf', C=12) # 77.7 
     clf.fit(matrix, labels)
     models.append( ('svm',clf) )
     
