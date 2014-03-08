@@ -8,7 +8,22 @@ __maintainer__ = "Sam Way"
 __email__ = "samfway@gmail.com"
 __status__ = "Development"
 
-from numpy import array
+from numpy import array, abs
+
+def yield_csv_columns(csv_file, labeled=False):
+    """ Return one line at a time """ 
+    for line in open(csv_file, 'rU'):
+        temp_list = [ float(x) for x in line.split(',') ] 
+        if len(temp_list) < 1: 
+            continue 
+        if labeled: 
+            label = int(temp_list[-1])
+            vector = array(temp_list[:-1])
+        else:
+            label = None 
+            vector = array(temp_list)
+        
+        yield label, vector
 
 def parse_csv_columns(csv_file, labeled=False):
     """ Parse csv file to numpy matrix. If labeled is 

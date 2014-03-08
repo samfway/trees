@@ -11,10 +11,13 @@ __status__ = "Development"
 from .parse import parse_csv_columns
 from sklearn import grid_search, preprocessing
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import TruncatedSVD, NMF
 from numpy import arange
-import pickle
+import cPickle as pickle
 
 def load_pickle(model_pickle_file):
     """ Retrieve models/scaler from a file """ 
@@ -31,9 +34,11 @@ def build_models(training_file, output_file=None, scale_file=None):
     # Preprocess data first!
     scaler = preprocessing.StandardScaler()
     matrix = scaler.fit_transform(matrix)
-    #redux = TruncatedSVD(25) 
-    #matrix = redux.fit_transform(matrix)    
-    data_prep = Pipeline([('scaling', scaler)]) #, ('ksvd', redux)])
+    # Neither NMF/kSVD seemed to work well
+    #redux = NMF(7) #TruncatedSVD(35) 
+    #matrix = redux.fit_transform(matrix)
+    #data_prep = Pipeline([('scaling', scaler), ('ksvd', redux)])
+    data_prep = Pipeline([('scaling', scaler)])
  
     # 1 - SVM 
     #svm_params = {'kernel':['rbf', 'poly', 'sigmoid'], 'C':[8, 10, 12]}
@@ -41,13 +46,29 @@ def build_models(training_file, output_file=None, scale_file=None):
     #    {'C': [1, 10, 100, 1000], 'kernel': ['poly']},
     #    {'C': [1, 10, 100, 1000], 'gamma': [0.001, 0.0001], 'kernel': ['rbf']},
     #]
-    C_range = 10. ** arange(-2, 9)
-    gamma_range = 10. ** arange(-5, 4)
-    svm_params = dict(gamma=gamma_range, C=C_range)
-    clf = grid_search.GridSearchCV(SVC(), svm_params, cv=5)
-    #clf = SVC(kernel='rbf', C=12) # 77.7 
+    #C_range = 10. ** arange(-2, 9)
+    #gamma_range = 10. ** arange(-5, 4)
+    #svm_params = dict(gamma=gamma_range, C=C_range)
+    #clf = grid_search.GridSearchCV(SVC(), svm_params, cv=5)
+
+    # 77.7
+    #clf = SVC(kernel='rbf', C=50, gamma=0.01)
+    #clf.fit(matrix, labels)
+    #models.append( ('svm',clf) )
+
+    # 83.98 ()
+    # 86.87 (n_estimators=100)
+    # 87.09 (n_estimators=1000)
+    # 87.54 (n_estimators=100, criterion='entropy')
+    # 87.86 ((n_estimators=1000, criterion='entropy')
+    clf = RandomForestClassifier(n_estimators=10, criterion='entropy')
     clf.fit(matrix, labels)
-    models.append( ('svm',clf) )
+    models.append( ('rf10',clf) )
+
+    # 0.8338 (weights='distance')
+    #clf = KNeighborsClassifier(weights='distance')
+    #clf.fit(matrix, labels)
+    #models.append( ('knn5',clf) )
     
     if output_file is not None:
         pickle.dump(models, open(output_file, "wb"))

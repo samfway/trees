@@ -24,6 +24,5 @@ if __name__=="__main__":
     for model_name, model in models:
         predictions = model.predict(matrix)
         if args.validation:
-            #print model.best_params_
             print accuracy_score(labels, predictions)
         save_model_predictions(predictions, args.output_prefix + model_name + '.csv') 
