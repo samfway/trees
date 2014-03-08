@@ -14,6 +14,8 @@ from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import TruncatedSVD, NMF
 from numpy import arange
@@ -61,14 +63,24 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 87.09 (n_estimators=1000)
     # 87.54 (n_estimators=100, criterion='entropy')
     # 87.86 ((n_estimators=1000, criterion='entropy')
-    clf = RandomForestClassifier(n_estimators=10, criterion='entropy')
-    clf.fit(matrix, labels)
-    models.append( ('rf10',clf) )
+    #clf = RandomForestClassifier(n_estimators=10, criterion='entropy')
+    #clf.fit(matrix, labels)
+    #models.append( ('rf10',clf) )
 
-    # 0.8338 (weights='distance')
+    # 83.38 (weights='distance')
     #clf = KNeighborsClassifier(weights='distance')
     #clf.fit(matrix, labels)
     #models.append( ('knn5',clf) )
+
+    # 60.12
+    #clf = MultinomialNB(class_prior=priors, alpha=10)
+    #clf.fit(abs(matrix), labels)
+    #models.append( ('MNB', clf) )
+
+    # 85.07  AdaBoostClassifier(RandomForestClassifier(n_estimators=10, criterion='entropy'), n_estimators=10)
+    clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=100)
+    clf.fit(matrix, labels)
+    models.append( ('ada', clf) )
     
     if output_file is not None:
         pickle.dump(models, open(output_file, "wb"))
