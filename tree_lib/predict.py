@@ -78,7 +78,10 @@ def build_models(training_file, output_file=None, scale_file=None):
     #models.append( ('MNB', clf) )
 
     # 85.07  AdaBoostClassifier(RandomForestClassifier(n_estimators=10, criterion='entropy'), n_estimators=10)
-    clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=100)
+    # 87.73  AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=100)
+    # 87.7  AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=1000)
+    # 87.91 AdaBoostClassifier(RandomForestClassifier(n_estimators=1000, criterion='entropy'), n_estimators=100)
+    clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=1000, criterion='entropy'), n_estimators=100)
     clf.fit(matrix, labels)
     models.append( ('ada', clf) )
     
