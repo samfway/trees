@@ -63,9 +63,10 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 87.09 (n_estimators=1000)
     # 87.54 (n_estimators=100, criterion='entropy')
     # 87.86 ((n_estimators=1000, criterion='entropy')
-    #clf = RandomForestClassifier(n_estimators=10, criterion='entropy')
-    #clf.fit(matrix, labels)
-    #models.append( ('rf10',clf) )
+    # 89.11 (n_estimators=100, criterion='entropy', max_features=9, bootstrap=False)
+    clf = RandomForestClassifier(n_estimators=100, criterion='entropy', max_features=9, bootstrap=False)
+    clf.fit(matrix, labels)
+    models.append( ('rf100',clf) )
 
     # 83.38 (weights='distance')
     #clf = KNeighborsClassifier(weights='distance')
@@ -81,9 +82,9 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 87.73  AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=100)
     # 87.7  AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy'), n_estimators=1000)
     # 87.91 AdaBoostClassifier(RandomForestClassifier(n_estimators=1000, criterion='entropy'), n_estimators=100)
-    clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=1000, criterion='entropy'), n_estimators=100)
-    clf.fit(matrix, labels)
-    models.append( ('ada', clf) )
+    #clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=1000, criterion='entropy'), n_estimators=100)
+    #clf.fit(matrix, labels)
+    #models.append( ('ada', clf) )
     
     if output_file is not None:
         pickle.dump(models, open(output_file, "wb"))
