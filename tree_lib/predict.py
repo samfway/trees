@@ -11,13 +11,14 @@ __status__ = "Development"
 from .parse import parse_csv_columns
 from sklearn import grid_search, preprocessing
 from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.pipeline import Pipeline
-from sklearn.decomposition import TruncatedSVD, NMF
+from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.decomposition import TruncatedSVD, NMF, RandomizedPCA
+from sklearn.feature_selection import RFE
 from numpy import arange
 import cPickle as pickle
 
@@ -35,12 +36,15 @@ def build_models(training_file, output_file=None, scale_file=None):
  
     # Preprocess data first!
     scaler = preprocessing.StandardScaler()
-    matrix = scaler.fit_transform(matrix)
+    #matrix = scaler.fit_transform(matrix)
     # Neither NMF/kSVD seemed to work well
-    #redux = NMF(7) #TruncatedSVD(35) 
+    #redux = RandomizedPCA() #NMF(7) #TruncatedSVD(35) 
     #matrix = redux.fit_transform(matrix)
-    #data_prep = Pipeline([('scaling', scaler), ('ksvd', redux)])
-    data_prep = Pipeline([('scaling', scaler)])
+    #data_prep = Pipeline([('scaling', scaler), ('dim_redux', redux)])
+    extract = RFE()
+    #matrix = extract.fit_transform(matrix)
+    data_prep = FeatureUnion([('scaling', scaler), ('rfe', extract)])
+    matrix = data_prep.fit_transform(matrix)
  
     # 1 - SVM 
     #svm_params = {'kernel':['rbf', 'poly', 'sigmoid'], 'C':[8, 10, 12]}
@@ -65,9 +69,20 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 87.86 ((n_estimators=1000, criterion='entropy')
     # 89.11 (n_estimators=100, criterion='entropy', max_features=9, bootstrap=False)
     # 89.64 (n_estimators=1000, criterion='entropy', max_features=9, bootstrap=False)
-    #clf = RandomForestClassifier(n_estimators=1000, criterion='entropy', max_features=9, bootstrap=False)
+    # 89.07 (n_estimators=50, criterion='entropy', max_features=9, bootstrap=False)
+    #clf = RandomForestClassifier(n_estimators=50, criterion='entropy', max_features=9, bootstrap=False)
     #clf.fit(matrix, labels)
-    #models.append( ('rf1k',clf) )
+    #models.append( ('rf50',clf) )
+
+    # Extra trees 
+    # 90.8 (n_estimators=1000, criterion='entropy', max_features=9, bootstrap=False)
+    # 90.73 (n_estimators=2000, criterion='entropy', max_features=9, bootstrap=False)
+    # 90.78 (n_estimators=500, criterion='entropy', max_features=9, bootstrap=False)
+    # 90.87 (n_estimators=1000, criterion='entropy', max_features=10, bootstrap=False)
+    # 90.79 (n_estimators=1000, criterion='entropy', max_features=15, bootstrap=False)
+    clf = ExtraTreesClassifier(n_estimators=1000, criterion='entropy', max_features=10, bootstrap=False)
+    clf.fit(matrix, labels)
+    models.append( ('ext1k',clf) )
 
     # 83.38 (weights='distance')
     #clf = KNeighborsClassifier(weights='distance')
@@ -86,11 +101,12 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 89.24 AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy', max_features=9, bootstrap=False), n_estimators=10)
     # 89.42 AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy', max_features=9, bootstrap=False), n_estimators=100)
     # 89.41 AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy', max_features=9, bootstrap=False), n_estimators=50, learning_rate=0.1)
-    # 89.47 AdaBoostClassifier(RandomForestClassifier(n_estimators=100, criterion='entropy', max_features=9, bootstrap=False), n_estimators=50, learning_rate=5)
+    # 89.47 AdaBoostClassifier(RandomForestClassifier(n_estimators=500, criterion='entropy', max_features=9, bootstrap=False), n_estimators=50, learning_rate=5)
     # 89.47
-    clf = AdaBoostClassifier(SVC(kernel='linear', C=100, gamma=0.01), learning_rate=10)
-    clf.fit(matrix, labels)
-    models.append( ('ada', clf) )
+    #clf = AdaBoostClassifier(SVC(kernel='linear', C=100, gamma=0.01), learning_rate=10)
+    #clf = AdaBoostClassifier(RandomForestClassifier(n_estimators=50, criterion='entropy', max_features=9, bootstrap=False), n_estimators=100, learning_rate=5)
+    #clf.fit(matrix, labels)
+    #models.append( ('ada', clf) )
     
     if output_file is not None:
         pickle.dump(models, open(output_file, "wb"))
