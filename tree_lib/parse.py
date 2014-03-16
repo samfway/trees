@@ -54,3 +54,13 @@ def save_model_predictions(predictions, filename):
     for i in xrange(len(predictions)):
         output.write('%d,%d\n' % (i+1, predictions[i]))
     output.close()
+
+def load_model_predictions(predictions_file):
+    """ Load model predictions from csv files """ 
+    instream = open(predictions_file, 'rU')
+    first_line = instream.readline()
+    if not first_line.startswith('Id,Prediction'):
+        raise ValueError('File (%s) improperly formatted' % \
+            (predictions_file))
+    predictions = [int(line.split(',')[1]) for line in instream]
+    return predictions 

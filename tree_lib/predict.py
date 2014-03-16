@@ -35,7 +35,8 @@ def build_models(training_file, output_file=None, scale_file=None):
     class_w = { i+1:priors[i] for i in xrange(len(priors)) }
  
     # Preprocess data first!
-    scaler = preprocessing.StandardScaler()
+    #scaler = preprocessing.StandardScaler()
+    scaler = preprocessing.MinMaxScaler()
     #matrix = scaler.fit_transform(matrix)
     # Neither NMF/kSVD seemed to work well
     #redux = RandomizedPCA() #NMF(7) #TruncatedSVD(35) 
@@ -43,7 +44,8 @@ def build_models(training_file, output_file=None, scale_file=None):
     #data_prep = Pipeline([('scaling', scaler), ('dim_redux', redux)])
     extract = RFE()
     #matrix = extract.fit_transform(matrix)
-    data_prep = FeatureUnion([('scaling', scaler), ('rfe', extract)])
+    #data_prep = FeatureUnion([('scaling', scaler), ('rfe', extract)])
+    data_prep = FeatureUnion([('scaling', scaler)])
     matrix = data_prep.fit_transform(matrix)
  
     # 1 - SVM 

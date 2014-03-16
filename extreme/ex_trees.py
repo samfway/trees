@@ -121,13 +121,13 @@ class extreme_tree_classifier:
     def fit(self, matrix, labels):
         M = matrix.shape[0] # Number of examples
         all_samples = arange(M)
-        self.num_samples = int(M/7)
+        self.num_samples = int(sqrt(M)) # int(M/7)
 
         for tree in self.trees:
-            sample_subset = choice(all_samples, self.num_samples, replace=False)
+            sample_subset = choice(M, self.num_samples, replace=True)
             sub_matrix = matrix[sample_subset]
             sub_labels = labels[sample_subset]
-            tree.fit(sub_matrix, sub_labels)
+            tree.fit(matrix, labels)
 
     def predict(self, matrix):
         M = matrix.shape[0] # Number of examples
