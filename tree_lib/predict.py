@@ -42,7 +42,7 @@ def build_models(training_file, output_file=None, scale_file=None):
     #redux = RandomizedPCA() #NMF(7) #TruncatedSVD(35) 
     #matrix = redux.fit_transform(matrix)
     #data_prep = Pipeline([('scaling', scaler), ('dim_redux', redux)])
-    extract = RFE()
+    #extract = RFE()
     #matrix = extract.fit_transform(matrix)
     #data_prep = FeatureUnion([('scaling', scaler), ('rfe', extract)])
     data_prep = FeatureUnion([('scaling', scaler)])
@@ -82,7 +82,7 @@ def build_models(training_file, output_file=None, scale_file=None):
     # 90.78 (n_estimators=500, criterion='entropy', max_features=9, bootstrap=False)
     # 90.87 (n_estimators=1000, criterion='entropy', max_features=10, bootstrap=False)
     # 90.79 (n_estimators=1000, criterion='entropy', max_features=15, bootstrap=False)
-    clf = ExtraTreesClassifier(n_estimators=1000, criterion='entropy', max_features=10, bootstrap=False)
+    clf = ExtraTreesClassifier(n_estimators=100, criterion='entropy', max_features=10, bootstrap=False)
     clf.fit(matrix, labels)
     models.append( ('ext1k',clf) )
 
