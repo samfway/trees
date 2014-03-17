@@ -30,8 +30,8 @@ if __name__=="__main__":
     models =  [] 
     #models.append(('Random Forest', RandomForestClassifier(n_estimators=100, \
     #    criterion='entropy', max_features=10, bootstrap=False)))
-    #models.append(('My version', extreme_tree_classifier(n_estimators=10, \
-    #    max_features=10)))
+    models.append(('My version', extreme_tree_classifier(n_estimators=10, \
+        max_features=10)))
     models.append(('Scikit-learn', ExtraTreesClassifier(n_estimators=10, \
         criterion='entropy', max_features=10, bootstrap=False)))
 
